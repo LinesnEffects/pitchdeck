@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 import { client } from "@/sanity/lib/client";
-import { PLAYLIST_BY_SLUG_QUERY, STARTUP_BY_ID_QUERY } from "@/sanity/lib/queries";
+import {
+  PLAYLIST_BY_SLUG_QUERY,
+  STARTUP_BY_ID_QUERY,
+} from "@/sanity/lib/queries";
 import { notFound } from "next/navigation";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
@@ -20,11 +23,12 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   console.log({ id });
 
-  const post = await client.fetch(STARTUP_BY_ID_QUERY, { id });
-
-  const { select: editorPosts } = await client.fetch(PLAYLIST_BY_SLUG_QUERY, {
-    slug: "editor-recommends",
-  });
+  const [post, { select: editorPosts }] = await Promise.all([
+    client.fetch(STARTUP_BY_ID_QUERY, { id }),
+    client.fetch(PLAYLIST_BY_SLUG_QUERY, {
+      slug: "editor-recommends",
+    }),
+  ]);
 
   if (!post) return notFound();
 
